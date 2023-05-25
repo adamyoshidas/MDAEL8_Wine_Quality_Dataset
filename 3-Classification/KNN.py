@@ -26,7 +26,6 @@ def minkowski_distance(a, b, p=1):
     distance = distance**(1/p)    
     return distance
 
-
 def knn_predict(X_train, X_test, y_train, y_test, k, p):    
     # Make predictions on the test data
     # Need output of 1 prediction per test data point
@@ -56,7 +55,6 @@ def knn_predict(X_train, X_test, y_train, y_test, k, p):
         y_hat_test.append(prediction)
         
     return y_hat_test
-
 
 def plot_confusion_matrix(cm, classes,
                           normalize=False,
@@ -91,7 +89,6 @@ def plot_confusion_matrix(cm, classes,
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')    
-
 
 def main():
     # Load iris data and store in dataframe
