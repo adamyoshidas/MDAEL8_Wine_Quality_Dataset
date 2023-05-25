@@ -6,6 +6,7 @@ from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
+from sklearn.metrics import silhouette_samples
 import matplotlib.pyplot as plt
  
 #Defining our kmeans function from scratch
