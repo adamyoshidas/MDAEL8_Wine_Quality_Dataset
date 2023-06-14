@@ -6,7 +6,8 @@ from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
-from sklearn.metrics import silhouette_samples
+from sklearn.metrics import completeness_score
+from sklearn.metrics import homogeneity_score
 import matplotlib.pyplot as plt
  
 #Defining our kmeans function from scratch
@@ -77,6 +78,7 @@ def plot_samples(projected, labels, title):
  
 def main():
     #Load dataset Digits
+    k_values = [2, 3, 4, 5, 6]
     input_file = '0-Datasets/WineQTClear.data'
     names = ['fixed acidity','volatile acidity','citric acid','residual sugar','chlorides','free sulfur dioxide','total sulfur dioxide','density','pH','sulphates','alcohol','quality']
     
@@ -92,22 +94,32 @@ def main():
     #print(df.data.shape)
     print(projected.shape)    
     plot_samples(projected, df['quality'], 'Original Labels')
- 
-    #Applying our kmeans function from scratch
-    labels = KMeans_scratch(projected,8,5)
     
-    #Visualize the results 
-    plot_samples(projected, labels, 'Clusters Labels KMeans from scratch')
+    for k in k_values:
+        # Applying our kmeans function from scratch
+        labels = KMeans_scratch(projected, k, 5)
 
-    #Applying sklearn kemans function
-    kmeans = KMeans(n_clusters=5).fit(projected)
-    print(kmeans.inertia_)
-    centers = kmeans.cluster_centers_
-    score = silhouette_score(projected, kmeans.labels_)    
-    print("For n_clusters = {}, silhouette score is {})".format(5, score))
+        # Calculate completeness and homogeneity scores for scratch K-means
+        completeness_scratch = completeness_score(df['quality'], labels)
+        homogeneity_scratch = homogeneity_score(df['quality'], labels)
+        print("Completeness score for KMeans from scratch (k={}) is: {}".format(k, completeness_scratch))
+        print("Homogeneity score for KMeans from scratch (k={}) is: {}".format(k, homogeneity_scratch))
 
-    #Visualize the results sklearn
-    plot_samples(projected, kmeans.labels_, 'Clusters Labels KMeans from sklearn')
+        # Visualize the results
+        plot_samples(projected, labels, 'Clusters Labels KMeans from scratch (k={})\nCompleteness: {:.2f}, Homogeneity: {:.2f}'.format(k, completeness_scratch, homogeneity_scratch))
+
+        # Applying sklearn k-means function
+        kmeans = KMeans(n_clusters=k, n_init=10).fit(projected)
+        centers = kmeans.cluster_centers_
+        score = silhouette_score(projected, kmeans.labels_)
+        completeness_sklearn = completeness_score(df['quality'], kmeans.labels_)
+        homogeneity_sklearn = homogeneity_score(df['quality'], kmeans.labels_)
+        print("For n_clusters = {}, silhouette score is: {}".format(k, score))
+        print("Completeness score for KMeans from sklearn (k={}) is: {}".format(k, completeness_sklearn))
+        print("Homogeneity score for KMeans from sklearn (k={}) is: {}".format(k, homogeneity_sklearn))
+
+        # Visualize the results sklearn
+        plot_samples(projected, kmeans.labels_, 'Clusters Labels KMeans from sklearn (k={})\n Silhouette: {:.2f},Completeness: {:.2f}, Homogeneity: {:.2f}'.format(k, score, completeness_sklearn, homogeneity_sklearn))
 
     plt.show()
  
