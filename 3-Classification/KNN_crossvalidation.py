@@ -12,17 +12,17 @@ from sklearn.model_selection import cross_val_score
 from collections import Counter
 
 # Calculate distance between two points
-def minkowski_distance(a, b, p=1):    
+def minkowski_distance(a, b, p=1):
     # Store the number of dimensions
-    dim = len(a)    
+    dim = len(a)
     # Set initial distance to 0
     distance = 0
-    
+
     # Calculate minkowski distance using parameter p
     for d in range(dim):
-        distance += abs(a[d] - b[d])**p
-        
-    distance = distance**(1/p)    
+        distance += abs(a[d] - b[d]) ** p
+
+    distance = distance ** (1 / p)
     return distance
 
 def find_best_k(X_train, y_train):
@@ -45,7 +45,7 @@ def find_best_k(X_train, y_train):
 
     return best_k
 
-def knn_predict(X_train, X_test, y_train, y_test, k, p):    
+def knn_predict(X_train, X_test, y_train, y_test, k, p):
     # Make predictions on the test data
     # Need output of 1 prediction per test data point
     y_hat_test = []
@@ -56,11 +56,11 @@ def knn_predict(X_train, X_test, y_train, y_test, k, p):
         for train_point in X_train:
             distance = minkowski_distance(test_point, train_point, p=p)
             distances.append(distance)
-        
+
         # Store distances in a dataframe
-        df_dists = pd.DataFrame(data=distances, columns=['dist'], 
+        df_dists = pd.DataFrame(data=distances, columns=['dist'],
                                 index=y_train.index)
-        
+
         # Sort distances, and only consider the k closest points
         df_nn = df_dists.sort_values(by=['dist'], axis=0)[:k]
 
@@ -69,10 +69,10 @@ def knn_predict(X_train, X_test, y_train, y_test, k, p):
 
         # Get most common label of all the nearest neighbors
         prediction = counter.most_common()[0][0]
-        
+
         # Append prediction to output list
         y_hat_test.append(prediction)
-        
+
     return y_hat_test
 
 def plot_confusion_matrix(cm, classes,
@@ -107,68 +107,38 @@ def plot_confusion_matrix(cm, classes,
 
     plt.tight_layout()
     plt.ylabel('True label')
-    plt.xlabel('Predicted label')    
+    plt.xlabel('Predicted label')
+
 
 def main():
     # Load data from the .data file
-    col_names = ['fixed acidity','volatile acidity','citric acid','residual sugar','chlorides','free sulfur dioxide','total sulfur dioxide','density','pH','sulphates','alcohol','quality']
+    col_names = ['fixed acidity', 'volatile acidity', 'citric acid', 'residual sugar', 'chlorides',
+                 'free sulfur dioxide', 'total sulfur dioxide', 'density', 'pH', 'sulphates', 'alcohol', 'quality']
     data = pd.read_csv("0-Datasets/WineQTClear.data", header=None, names=col_names)
 
     # Separate X and y data
-    X = data.drop('quality', axis=1)
+    X = data.drop('fixed acidity', axis=1)
     y = data.quality
     print("Total samples: {}".format(X.shape[0]))
 
-    # Split the data - 70% train, 30% test
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=1)
-    print("Total train samples: {}".format(X_train.shape[0]))
-    print("Total test  samples: {}".format(X_test.shape[0]))
-
     # Scale the X data using Z-score
     scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
-        
-    # STEP 1 - TESTS USING knn classifier write from scratch    
-    # Make predictions on test dataset using knn classifier
-    y_hat_test = knn_predict(X_train, X_test, y_train, y_test, k=5, p=2)
-
-    # Get test accuracy score
-    accuracy = accuracy_score(y_test, y_hat_test) * 100
-    f1 = f1_score(y_test, y_hat_test, average='macro')
-    print("Accuracy K-NN from scratch: {:.2f}%".format(accuracy))
-    print("F1 Score K-NN from scratch: {:.2f}%".format(f1))
-
-    # Get test confusion matrix
-    cm = confusion_matrix(y_test, y_hat_test)        
-    plot_confusion_matrix(cm, data['quality'].unique(), False, "Confusion Matrix - K-NN")      
-    plot_confusion_matrix(cm, data['quality'].unique(), True, "Confusion Matrix - K-NN normalized")  
-
-    # STEP 2 - TESTS USING knn classifier from scikit-learn
-    knn = KNeighborsClassifier(n_neighbors=5)
-    knn.fit(X_train, y_train)
-    y_hat_test = knn.predict(X_test)
-
-     # Get test accuracy score
-    accuracy = accuracy_score(y_test, y_hat_test) * 100
-    f1 = f1_score(y_test, y_hat_test, average='macro')
-    print("Accuracy K-NN from scikit-learn: {:.2f}%".format(accuracy))
-    print("F1 Score K-NN from scikit-learn: {:.2f}%".format(f1))
-
-    # Get test confusion matrix    
-    cm = confusion_matrix(y_test, y_hat_test)        
-    plot_confusion_matrix(cm, data['quality'].unique(), False, "Confusion Matrix - K-NN scikit-learn")      
-    plot_confusion_matrix(cm, data['quality'].unique(), True, "Confusion Matrix - K-NN scikit-learn normalized")  
-    plt.show()
+    X = scaler.fit_transform(X)
 
     # Encontrar o melhor valor de K
-    best_k = find_best_k(X_train, y_train)
+    best_k = find_best_k(X, y)
     print("Best K value:", best_k)
 
     # Usar o melhor valor de K para treinar e testar o modelo
     knn = KNeighborsClassifier(n_neighbors=best_k)
-    knn.fit(X_train, y_train)
-    y_hat_test = knn.predict(X_test)
+
+    # Perform cross-validation
+    scores = cross_val_score(knn, X, y, cv=10)
+    avg_accuracy = scores.mean()
+    print("Cross-Validation Accuracy Scores:")
+    for i, score in enumerate(scores):
+        print("Fold {}: {:.2f}%".format(i + 1, score * 100))
+    print("Average Accuracy: {:.2f}%".format(avg_accuracy * 100))
 
 
 if __name__ == "__main__":
