@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 from scipy import stats
 
 # use seaborn plotting defaults
-import seaborn as sns; sns.set()
+import seaborn as sns; 
+sns.set()
 from sklearn.datasets import make_blobs
 
 X, y = make_blobs(n_samples=50, centers=2,

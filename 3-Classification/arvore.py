@@ -36,7 +36,7 @@ print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
 dot_data = StringIO()
 export_graphviz(clf, out_file=dot_data,  
                 filled=True, rounded=True,
-                special_characters=True,feature_names = feature_cols,class_names=['0','1','2','3','4','5','6','7','8','9','10','11'])
+                special_characters=True,feature_names = feature_cols,class_names=['0','1','2','3','4','5','6','7','8','9','10'])
 graph = pydotplus.graph_from_dot_data(dot_data.getvalue())  
 graph.write_png('diabetes.png')
 Image(graph.create_png())
