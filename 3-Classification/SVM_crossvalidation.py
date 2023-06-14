@@ -64,34 +64,22 @@ def main():
 
     # Scale the X data using Z-score
     scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
+    X_scaled = scaler.fit_transform(X)
 
-    # TESTS USING SVM classifier from sk-learn    
-    svm = SVC(kernel='poly') # poly, rbf, linear
-    # training using train dataset
-    svm.fit(X_train, y_train)
-    # get support vectors
-    print(svm.support_vectors_)
-    # get indices of support vectors
-    print(svm.support_)
-    # get number of support vectors for each class
-    print("Qtd Support vectors: ")
-    print(svm.n_support_)
-    # predict using test dataset
-    y_hat_test = svm.predict(X_test)
+    # Create SVM classifier
+    svm = SVC(kernel='poly')  # poly, rbf, linear
 
-     # Get test accuracy score
-    accuracy = accuracy_score(y_test, y_hat_test)*100
-    f1 = f1_score(y_test, y_hat_test,average='macro')
-    print("Acurracy SVM from sk-learn: {:.2f}%".format(accuracy))
-    print("F1 Score SVM from sk-learn: {:.2f}%".format(f1))
-
-    # Get test confusion matrix    
-    cm = confusion_matrix(y_test, y_hat_test)        
-    plot_confusion_matrix(cm, data['quality'].unique(), False, "Confusion Matrix - SVM sklearn")      
-    plot_confusion_matrix(cm, data['quality'].unique(), True, "Confusion Matrix - SVM sklearn normalized" )  
-    plt.show()
+    # Perform cross-validation
+    num_folds = 10  # Número de folds desejado
+    accuracies = cross_val_score(svm, X_train, y_train, cv=num_folds)
+    
+    # Imprimir acurácia de cada fold
+    for i, accuracy in enumerate(accuracies):
+        print("Fold {}: {:.2f}%".format(i+1, accuracy * 100))
+    
+    # Calcular e imprimir média da acurácia
+    average_accuracy = np.mean(accuracies) * 100
+    print("Average Accuracy: {:.2f}%".format(average_accuracy))
 
 
 if __name__ == "__main__":
