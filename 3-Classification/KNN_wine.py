@@ -26,7 +26,7 @@ def minkowski_distance(a, b, p=1):
     return distance
 
 def find_best_k(X_train, y_train):
-    k_values = [1, 3, 5, 7, 9]  # Valores de K a serem testados
+    k_values = [2, 3, 4, 5, 6]  # Valores de K a serem testados
     best_k = None
     best_accuracy = 0
 
@@ -115,7 +115,7 @@ def main():
     data = pd.read_csv("0-Datasets/WineQTClear.data", header=None, names=col_names)
 
     # Separate X and y data
-    X = data.drop('quality', axis=1)
+    X = data.drop('pH', axis=1)
     y = data.quality
     print("Total samples: {}".format(X.shape[0]))
 

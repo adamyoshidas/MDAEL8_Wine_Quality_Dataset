@@ -7,8 +7,9 @@ from sklearn.metrics import accuracy_score
 # Carregar o arquivo .data usando o pandas
 data = pd.read_csv('0-Datasets/WineQTClearColums.data')
 
-# Separar os dados em features (X) e target (y)
-X = data.drop('quality', axis=1)
+# Separar os dados em atributos (X) e rótulo (y)
+X = data[['fixed acidity', 'volatile acidity', 'citric acid', 'residual sugar', 'chlorides',
+          'free sulfur dioxide', 'total sulfur dioxide', 'density', 'pH', 'sulphates', 'alcohol']]
 y = data['quality']
 
 # Dividir os dados em treinamento e teste utilizando holdout (70% treinamento, 30% teste)
@@ -20,7 +21,7 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 # Definir a arquitetura da rede neural com valores padrão
-mlp = MLPClassifier()
+mlp = MLPClassifier(max_iter=4000)
 
 # Treinar a rede neural
 mlp.fit(X_train, y_train)

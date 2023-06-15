@@ -11,50 +11,14 @@ from sklearn.metrics import confusion_matrix
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
 
-def plot_confusion_matrix(cm, classes,
-                          normalize=False,
-                          title='Confusion matrix',
-                          cmap=plt.cm.Blues):
-    """
-    This function prints and plots the confusion matrix.
-    Normalization can be applied by setting `normalize=True`.
-    """
-    plt.figure()
-    plt.imshow(cm, interpolation='nearest', cmap=cmap)
-    plt.title(title)
-    plt.colorbar()
-    tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, classes, rotation=45)
-    plt.yticks(tick_marks, classes)
-
-    if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        print("Normalized confusion matrix")
-    else:
-        print('Confusion matrix, without normalization')
-
-    cm = np.round(cm, 2)
-    print(cm)
-
-    thresh = cm.max() / 2.
-    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, cm[i, j],
-                 horizontalalignment="center",
-                 color="white" if cm[i, j] > thresh else "black")
-
-    plt.tight_layout()
-    plt.ylabel('True label')
-    plt.xlabel('Predicted label')    
-
-
 def main():
     #load dataset
     col_names = ['fixed acidity','volatile acidity','citric acid','residual sugar','chlorides','free sulfur dioxide','total sulfur dioxide','density','pH','sulphates','alcohol','quality']
     data = pd.read_csv("0-Datasets/WineQTClear.data", header=None, names=col_names)
 
     # Separate X and y data
-    X = data.drop('quality', axis=1)
-    y = data.quality
+    X = data.drop('residual sugar', axis=1)
+    y = data.pH
     print("Total samples: {}".format(X.shape[0]))
 
     # Split the data - 70% train, 30% test
@@ -85,13 +49,13 @@ def main():
     accuracy = accuracy_score(y_test, y_hat_test)*100
     f1 = f1_score(y_test, y_hat_test,average='macro')
     print("Acurracy SVM from sk-learn: {:.2f}%".format(accuracy))
-    print("F1 Score SVM from sk-learn: {:.2f}%".format(f1))
+    print("F1 Score SVM from sk-learn: {:.2f}".format(f1))
 
     # Get test confusion matrix    
-    cm = confusion_matrix(y_test, y_hat_test)        
-    plot_confusion_matrix(cm, data['quality'].unique(), False, "Confusion Matrix - SVM sklearn")      
-    plot_confusion_matrix(cm, data['quality'].unique(), True, "Confusion Matrix - SVM sklearn normalized" )  
-    plt.show()
+    #cm = confusion_matrix(y_test, y_hat_test)        
+    #plot_confusion_matrix(cm, data['quality'].unique(), False, "Confusion Matrix - SVM sklearn")      
+    #plot_confusion_matrix(cm, data['quality'].unique(), True, "Confusion Matrix - SVM sklearn normalized" )  
+    #plt.show()
 
 
 if __name__ == "__main__":
