@@ -13,8 +13,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from collections import Counter
 import seaborn as sns
 
-
-
 # Calculate distance between two points
 def minkowski_distance(a, b, p=2):    
     # Store the number of dimensions
